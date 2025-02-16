@@ -2,18 +2,18 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const Products = ({ userId, onAddToCart }) => {
+const Products = ({ userId, onAddToCart, serverUrl }) => {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/products')
+    axios.get(`${serverUrl}/products`)
       .then(response => {
         setProducts(response.data);
       })
       .catch(error => {
         console.error('There was an error fetching the products!', error);
       });
-  }, []);
+  }, [serverUrl]);
 
   const handleAddToCart = (productId) => {
     const item = { productId, quantity: 1 };

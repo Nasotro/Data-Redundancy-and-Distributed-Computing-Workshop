@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const Cart = ({ userId, onCartUpdate }) => {
+const Cart = ({ userId, onCartUpdate, serverUrl }) => {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,7 +11,7 @@ const Cart = ({ userId, onCartUpdate }) => {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    axios.get(`http://localhost:5000/cart/${userId}`)
+    axios.get(`${serverUrl}/cart/${userId}`)
       .then(response => {
         setCart(response.data);
         setLoading(false);
@@ -21,12 +21,12 @@ const Cart = ({ userId, onCartUpdate }) => {
         setError(error);
         setLoading(false);
       });
-  }, [userId]);
+  }, [userId, serverUrl]);
 
   useEffect(() => {
     if (cart && cart.items) {
       const productIds = cart.items.map(item => item.productId);
-      axios.get(`http://localhost:5000/products?ids=${productIds.join(',')}`)
+      axios.get(`${serverUrl}/products?ids=${productIds.join(',')}`)
         .then(response => {
           const productsMap = response.data.reduce((map, product) => {
             map[product._id] = product;
@@ -38,10 +38,10 @@ const Cart = ({ userId, onCartUpdate }) => {
           console.error('There was an error fetching the products!', error);
         });
     }
-  }, [cart]);
+  }, [cart, serverUrl]);
 
   const handleRemoveFromCart = (productId) => {
-    axios.delete(`http://localhost:5000/cart/${userId}/${productId}`)
+    axios.delete(`${serverUrl}/cart/${userId}/${productId}`)
       .then(response => {
         console.log('Item removed from cart:', response.data);
         onCartUpdate(); // Notify the parent component to re-fetch the cart data
