@@ -6,6 +6,11 @@ from sklearn.datasets import load_breast_cancer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+from pyngrok import ngrok
+
+# Kill any previous ngrok session
+ngrok.kill()
+
 # Charger le dataset
 cancer = load_breast_cancer()
 X_train, X_test, y_train, y_test = train_test_split(cancer.data, cancer.target, test_size=0.2, random_state=42)
@@ -23,6 +28,9 @@ model = joblib.load("random_forest_model.pkl")
 # Initialiser Flask
 app = Flask(__name__)
 
+#Very unsecure -> complete with your auth token
+ngrok.set_auth_token("")
+
 @app.route('/predict', methods=['GET'])
 def predict():
     try:
@@ -35,4 +43,11 @@ def predict():
         return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
-    app.run(port=5004, debug=True)
+    # Assurez-vous qu'aucune session précédente ne tourne
+    ngrok.kill()
+
+    # Lancer une nouvelle connexion
+    public_url = ngrok.connect(5002).public_url
+    print(f"Public URL: {public_url}")
+
+    app.run(port=5002, debug=False)
